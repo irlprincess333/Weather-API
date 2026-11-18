@@ -1,229 +1,342 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ohio Weather</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ohio Weather</title>
 
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(160deg, #831843 0%, #db2777 45%, #fbcfe8 100%);
-      color: #831843;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 40px 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    color: white;
+    background: linear-gradient(135deg, #831843, #db2777, #fbcfe8);
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+    text-shadow: 0 3px 12px rgba(0,0,0,.2);
+}
+
+.subtitle {
+    margin-bottom: 25px;
+    opacity: .9;
+}
+
+.weather-card {
+    position: relative;
+    overflow: hidden;
+    padding: 32px 25px;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.45);
+    background: rgba(75, 10, 43, .48);
+    box-shadow: 0 20px 55px rgba(55,0,25,.28),
+                inset 0 1px 1px rgba(255,255,255,.35);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+.weather-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,.18),
+        transparent 35%,
+        transparent 70%,
+        rgba(255,255,255,.08)
+    );
+}
+
+.weather-content {
+    position: relative;
+    z-index: 2;
+}
+
+select {
+    width: 100%;
+    padding: 13px;
+    margin: 12px 0 24px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.5);
+    background: rgba(255,255,255,.16);
+    color: white;
+    font-size: 16px;
+}
+
+select option {
+    color: #831843;
+}
+
+.city {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.temperature {
+    font-size: 68px;
+    font-weight: 300;
+    margin: 12px 0 5px;
+}
+
+.condition {
+    font-size: 19px;
+    margin-bottom: 25px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.metric {
+    padding: 16px 10px;
+    border: 1px solid rgba(255,255,255,.23);
+    background: rgba(255,255,255,.12);
+    border-radius: 12px;
+}
+
+.metric-label {
+    font-size: 12px;
+    opacity: .85;
+    margin-bottom: 8px;
+}
+
+.metric-value {
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.weather-effect {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.raindrop {
+    position: absolute;
+    top: -30px;
+    width: 2px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(210,235,255,.75);
+    animation: rainFall linear infinite;
+}
+
+@keyframes rainFall {
+    to { transform: translateY(550px); }
+}
+
+.snowflake {
+    position: absolute;
+    top: -25px;
+    color: white;
+    opacity: .9;
+    animation: snowFall linear infinite;
+    text-shadow: 0 0 8px white;
+}
+
+@keyframes snowFall {
+    to {
+        transform: translateY(550px) translateX(35px) rotate(180deg);
     }
+}
 
-    .card {
-      background: rgba(255, 240, 245, 0.97);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(190, 24, 93, 0.35);
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      border: 2px solid #f9a8d4;
-    }
+.status {
+    margin-top: 18px;
+    font-size: 13px;
+    opacity: .85;
+}
 
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: #be185d;
-    }
+#error {
+    margin-top: 15px;
+    color: #ffe4e6;
+    font-size: 14px;
+}
 
-    .subtitle {
-      color: #db2777;
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #be185d;
-      margin-bottom: 0.5rem;
-    }
-
-    select {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      border: 2px solid #f9a8d4;
-      border-radius: 10px;
-      background: #fff0f6;
-      color: #831843;
-      margin-bottom: 1.25rem;
-      cursor: pointer;
-    }
-
-    select:focus {
-      outline: none;
-      border-color: #ec4899;
-    }
-
-    button {
-      width: 100%;
-      padding: 0.85rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-      background: linear-gradient(135deg, #be185d, #ec4899);
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    button:hover { opacity: 0.9; }
-    button:disabled { opacity: 0.6; cursor: wait; }
-
-    .weather {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid #f9a8d4;
-      display: none;
-    }
-
-    .weather.visible { display: block; }
-
-    .city-name {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #be185d;
-    }
-
-    .temp {
-      font-size: 4rem;
-      font-weight: 300;
-      line-height: 1.1;
-      margin: 0.5rem 0;
-      color: #db2777;
-    }
-
-    .condition {
-      font-size: 1.1rem;
-      color: #ec4899;
-      margin-bottom: 1rem;
-    }
-
-    .details {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      font-size: 0.9rem;
-      color: #be185d;
-    }
-
-    .detail span {
-      display: block;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #f472b6;
-      margin-bottom: 0.25rem;
-    }
-
-    .error {
-      margin-top: 1.5rem;
-      padding: 0.75rem 1rem;
-      background: #fce7f3;
-      color: #9d174d;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .error.visible { display: block; }
-
-    .status {
-      margin-top: 1.5rem;
-      font-size: 0.8rem;
-      color: #f472b6;
-    }
-
-    .status .dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      background: #ec4899;
-      border-radius: 50%;
-      margin-right: 0.35rem;
-    }
-  </style>
+@media (max-width: 400px) {
+    .weather-card { padding: 25px 16px; }
+    .temperature { font-size: 58px; }
+}
+</style>
 </head>
+
 <body>
-  <div class="card">
-    <p class="subtitle">Live conditions for cities across Ohio</p>
+<div class="container">
+    <h1>Ohio Weather</h1>
+    <div class="subtitle">Your little look at the weather ♡</div>
 
-    <label for="city">Choose a city</label>
-    <select id="city">
-      {% for city in cities %}
-      <option value="{{ city }}"{% if city == "Columbus" %} selected{% endif %}>{{ city }}</option>
-      {% endfor %}
-    </select>
+    <div class="weather-card">
+        <div class="weather-effect" id="weatherEffect"></div>
 
-    <button id="fetch-btn" type="button">Get Weather</button>
+        <div class="weather-content">
+            <label for="citySelect">Choose your Ohio city</label>
+            <select id="citySelect">
+                {% for city in cities %}
+                <option value="{{ city }}" {% if city == "Columbus" %}selected{% endif %}>{{ city }}</option>
+                {% endfor %}
+            </select>
 
-    <div id="error" class="error"></div>
+            <div class="city" id="city">Columbus</div>
+            <div class="temperature" id="temperature">--°</div>
+            <div class="condition" id="condition">Loading weather...</div>
 
-    <div id="weather" class="weather">
-      <div class="city-name" id="result-city"></div>
-      <div class="temp" id="result-temp"></div>
-      <div class="condition" id="result-condition"></div>
-      <div class="details">
-        <div class="detail"><span>Wind</span><strong id="result-wind"></strong></div>
-        <div class="detail"><span>Humidity</span><strong id="result-humidity"></strong></div>
-      </div>
+            <div class="grid">
+                <div class="metric">
+                    <div class="metric-label">💧 Humidity</div>
+                    <div class="metric-value" id="humidity">--%</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">💨 Wind</div>
+                    <div class="metric-value" id="wind">-- mph</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">🌧️ Current rain</div>
+                    <div class="metric-value" id="rain">-- in</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">❄️ Current snow</div>
+                    <div class="metric-value" id="currentSnow">-- cm</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">☔ Precipitation chance</div>
+                    <div class="metric-value" id="precipitationChance">--%</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">❄️ Estimated snow chance</div>
+                    <div class="metric-value" id="snowChance">--%</div>
+                </div>
+
+                <div class="metric" style="grid-column: 1 / -1;">
+                    <div class="metric-label">🌨️ Expected snowfall today</div>
+                    <div class="metric-value" id="snowfallAmount">-- cm</div>
+                </div>
+            </div>
+
+            <div class="status" id="status">Weather updates from Open-Meteo</div>
+            <div id="error"></div>
+        </div>
     </div>
+</div>
 
-    <p class="status"><span class="dot"></span>API is online</p>
-  </div>
+<script>
+const API_BASE = {{ api_base|tojson }};
 
-  <script>
-    const API_BASE = {{ api_base|tojson }};
-    const btn = document.getElementById("fetch-btn");
-    const citySelect = document.getElementById("city");
-    const weatherEl = document.getElementById("weather");
-    const errorEl = document.getElementById("error");
+const citySelect = document.getElementById("citySelect");
+const effectLayer = document.getElementById("weatherEffect");
 
-    async function loadWeather() {
-      const city = citySelect.value;
-      btn.disabled = true;
-      btn.textContent = "Loading…";
-      errorEl.classList.remove("visible");
-      weatherEl.classList.remove("visible");
+function showEffect(type) {
+    effectLayer.innerHTML = "";
 
-      try {
-      const base = (typeof API_BASE === 'string' && API_BASE.length) ? API_BASE.replace(/\/$/, '') : '';
-      const url = base ? `${base}/weather?city=${encodeURIComponent(city)}` : `/weather?city=${encodeURIComponent(city)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to fetch weather");
-
-        document.getElementById("result-city").textContent = data.city + ", OH";
-        document.getElementById("result-temp").textContent = Math.round(data.temperature) + "°F";
-        document.getElementById("result-condition").textContent = data.condition;
-        document.getElementById("result-wind").textContent = Math.round(data.wind_speed) + " mph";
-        document.getElementById("result-humidity").textContent = data.humidity + "%";
-        weatherEl.classList.add("visible");
-      } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.add("visible");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Get Weather";
-      }
+    if (type === "rain") {
+        for (let i = 0; i < 45; i++) {
+            const drop = document.createElement("div");
+            drop.className = "raindrop";
+            drop.style.left = Math.random() * 100 + "%";
+            drop.style.animationDuration = (0.5 + Math.random() * 0.8) + "s";
+            drop.style.animationDelay = Math.random() * 2 + "s";
+            effectLayer.appendChild(drop);
+        }
     }
 
-    btn.addEventListener("click", loadWeather);
-    loadWeather();
-  </script>
+    if (type === "snow") {
+        for (let i = 0; i < 35; i++) {
+            const flake = document.createElement("div");
+            flake.className = "snowflake";
+            flake.textContent = "❄";
+            flake.style.left = Math.random() * 100 + "%";
+            flake.style.fontSize = (10 + Math.random() * 13) + "px";
+            flake.style.animationDuration = (4 + Math.random() * 6) + "s";
+            flake.style.animationDelay = Math.random() * 5 + "s";
+            effectLayer.appendChild(flake);
+        }
+    }
+}
+
+async function loadWeather() {
+    const city = citySelect.value;
+    document.getElementById("error").textContent = "";
+    document.getElementById("status").textContent = "Loading weather...";
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/weather?city=${encodeURIComponent(city)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Weather information could not be loaded.");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("city").textContent = data.city;
+        document.getElementById("temperature").textContent =
+            Math.round(data.temperature) + "°";
+        document.getElementById("condition").textContent = data.condition;
+        document.getElementById("humidity").textContent = data.humidity + "%";
+        document.getElementById("wind").textContent = data.wind_speed + " mph";
+        document.getElementById("rain").textContent =
+            Number(data.rain || 0).toFixed(2) + " in";
+        document.getElementById("currentSnow").textContent =
+            Number(data.current_snowfall || 0).toFixed(1) + " cm";
+        document.getElementById("precipitationChance").textContent =
+            (data.precipitation_chance ?? 0) + "%";
+        document.getElementById("snowChance").textContent =
+            (data.snow_chance ?? 0) + "%";
+        document.getElementById("snowfallAmount").textContent =
+            Number(data.snowfall_amount || 0).toFixed(1) + " cm";
+
+        if (data.snow_forecast || Number(data.current_snowfall) > 0) {
+            showEffect("snow");
+        } else if (
+            Number(data.rain) > 0 ||
+            Number(data.precipitation_chance) >= 50
+        ) {
+            showEffect("rain");
+        } else {
+            showEffect("");
+        }
+
+        document.getElementById("status").textContent =
+            "Weather successfully updated ♡";
+
+    } catch (error) {
+        document.getElementById("error").textContent = error.message;
+        document.getElementById("status").textContent = "Weather unavailable";
+        showEffect("");
+    }
+}
+
+citySelect.addEventListener("change", loadWeather);
+loadWeather();
+</script>
 </body>
 </html>
