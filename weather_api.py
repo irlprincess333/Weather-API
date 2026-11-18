@@ -1,5 +1,5 @@
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import requests
 
 app = Flask(__name__)
@@ -14,7 +14,6 @@ CITIES = {
     "Columbus": {"latitude": 39.9612, "longitude": -82.9988},
     "Green": {"latitude": 40.9459, "longitude": -81.4832},
     "Alliance": {"latitude": 40.9153, "longitude": -81.1059},
-    "Massillon": {"latitude": 40.7967, "longitude": -81.5215},
 }
 
 RAIN_CODES = {51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99}
@@ -55,6 +54,7 @@ def get_weather(city):
     weather = response.json()
 
     current = weather["current"]
+    hourly = weather.get("hourly", {})
     daily = weather.get("daily", {})
 
     code = int(current.get("weather_code", 0))
@@ -67,11 +67,12 @@ def get_weather(city):
     is_cloudy = cloud_cover >= 45 or code in CLOUDY_CODES
 
     condition = "Clear"
-    if code in {1}:
+
+    if code == 1:
         condition = "Mainly clear"
-    elif code in {2}:
+    elif code == 2:
         condition = "Partly cloudy"
-    elif code in {3}:
+    elif code == 3:
         condition = "Overcast"
     elif code in {45, 48}:
         condition = "Foggy"
@@ -79,16 +80,41 @@ def get_weather(city):
         condition = "Rain"
     elif code in SNOW_CODES:
         condition = "Snow"
-    elif code in {0}:
-        condition = "Clear"
 
-    precipitation_chance = 0
-    if daily.get("precipitation_probability_max"):
-        precipitation_chance = daily["precipitation_probability_max"][0] or 0
+    # Find the hourly forecast matching the current local weather hour.
+    current_time = current.get("time", "")
+    hourly_times = hourly.get("time", [])
+    hour_index = None
 
+    for index, forecast_time in enumerate(hourly_times):
+        if forecast_time[:13] == current_time[:13]:
+            hour_index = index
+            break
+
+    def current_hour_value(field):
+        values = hourly.get(field, [])
+        if hour_index is not None and hour_index < len(values):
+            return values[hour_index]
+        return None
+
+    rain_chance = current_hour_value("rain_probability")
+    precipitation_chance = current_hour_value("precipitation_probability")
+    snow_chance = current_hour_value("snowfall_probability")
+
+    # Use precipitation probability if the rain-specific field is unavailable.
+    if rain_chance is None:
+        rain_chance = precipitation_chance
+
+    # Daily snowfall amount is the forecast total for the day.
     snowfall_forecast = 0
-    if daily.get("snowfall_sum"):
-        snowfall_forecast = daily["snowfall_sum"][0] or 0
+    snowfall_values = daily.get("snowfall_sum", [])
+    if snowfall_values:
+        snowfall_forecast = snowfall_values[0] or 0
+
+    daily_precipitation_chance = 0
+    daily_precipitation_values = daily.get("precipitation_probability_max", [])
+    if daily_precipitation_values:
+        daily_precipitation_chance = daily_precipitation_values[0] or 0
 
     return {
         "city": city,
@@ -97,16 +123,26 @@ def get_weather(city):
         "wind_speed": round(current.get("wind_speed_10m", 0)),
         "condition": condition,
         "weather_code": code,
-        "weather_time": current.get("time"),
+        "weather_time": current_time,
         "is_day": current.get("is_day", 1),
         "cloud_cover": cloud_cover,
         "is_cloudy": is_cloudy,
         "is_raining": is_raining,
         "is_snowing": is_snowing,
+
+        # Current conditions
         "precipitation": current.get("precipitation", 0),
         "rain": rain_amount,
         "current_snowfall": snow_amount,
-        "precipitation_chance": precipitation_chance,
+
+        # Current-hour probabilities
+        "precipitation_chance": rain_chance,
+        "rain_chance": rain_chance,
+        "snowfall_chance": snow_chance,
+        "snowfall_probability": snow_chance,
+
+        # Today's forecast
+        "daily_precipitation_chance": daily_precipitation_chance,
         "snowfall_amount": snowfall_forecast,
         "snow_forecast": snowfall_forecast > 0,
     }
@@ -124,14 +160,16 @@ def weather_page():
 
 @app.route("/api/weather")
 def weather_api():
-    from flask import request
-
     city = request.args.get("city", "Canton")
+
     try:
         result = get_weather(city)
+
         if result is None:
             return jsonify({"error": "City not found"}), 404
+
         return jsonify(result)
+
     except requests.RequestException as error:
         return jsonify({"error": f"Weather service unavailable: {error}"}), 502
 
