@@ -11,13 +11,11 @@
     --pink-dark: #831843;
     --pink: #db2777;
     --pink-light: #fbcfe8;
-    --glass: rgba(255, 255, 255, 0.16);
-    --glass-border: rgba(255, 255, 255, 0.35);
+    --glass: rgba(255,255,255,0.16);
+    --glass-border: rgba(255,255,255,0.35);
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -29,39 +27,41 @@ body {
     transition: background 1.5s ease;
 }
 
+/* Every weather condition stays within the pink palette */
+
 body.day-clear {
-    background: linear-gradient(150deg, #f9a8d4 0%, #fbcfe8 35%, #fef3c7 100%);
+    background: linear-gradient(150deg, #be185d 0%, #ec4899 38%, #fbcfe8 100%);
 }
 
 body.day-cloudy {
-    background: linear-gradient(150deg, #64748b 0%, #a5b4c5 48%, #e2c8dc 100%);
+    background: linear-gradient(150deg, #9d174d 0%, #d66b9c 48%, #f4c5dc 100%);
 }
 
 body.day-rain {
-    background: linear-gradient(150deg, #26364d 0%, #53657d 50%, #8d829b 100%);
+    background: linear-gradient(150deg, #70143f 0%, #a83270 50%, #d987b4 100%);
 }
 
 body.day-snow {
-    background: linear-gradient(150deg, #8ca8c4 0%, #c6d6e6 55%, #f0ddeb 100%);
+    background: linear-gradient(150deg, #a83270 0%, #e6a6cb 52%, #fff0f7 100%);
 }
 
 body.night-clear {
-    background: linear-gradient(150deg, #100d2c 0%, #29204c 48%, #831843 100%);
+    background: linear-gradient(150deg, #26091e 0%, #58143e 48%, #a32968 100%);
 }
 
 body.night-cloudy {
-    background: linear-gradient(150deg, #171b32 0%, #34344e 55%, #68415f 100%);
+    background: linear-gradient(150deg, #321020 0%, #682342 55%, #a94c78 100%);
 }
 
 body.night-rain {
-    background: linear-gradient(150deg, #101827 0%, #26364b 55%, #49364e 100%);
+    background: linear-gradient(150deg, #240b20 0%, #501536 55%, #87365f 100%);
 }
 
 body.night-snow {
-    background: linear-gradient(150deg, #17243b 0%, #53657d 55%, #8b718b 100%);
+    background: linear-gradient(150deg, #38132f 0%, #79345e 55%, #c27da3 100%);
 }
 
-/* Full-screen weather scene */
+/* Sky */
 
 #sky {
     position: fixed;
@@ -79,7 +79,7 @@ body.night-snow {
     right: 8%;
     border-radius: 50%;
     opacity: 0;
-    background: radial-gradient(circle, #fff9d6 0%, #ffe6a8 35%, rgba(255, 226, 166, 0) 72%);
+    background: radial-gradient(circle, #fff8f3 0%, #ffd1e8 35%, rgba(255,209,232,0) 72%);
     filter: blur(2px);
     transition: opacity 1.5s ease;
 }
@@ -96,9 +96,9 @@ body.night-snow {
     top: 9%;
     right: 13%;
     border-radius: 50%;
-    background: #fff6dc;
-    box-shadow: 0 0 35px rgba(255, 244, 214, 0.45),
-                0 0 100px rgba(255, 244, 214, 0.18);
+    background: #fff1f7;
+    box-shadow: 0 0 35px rgba(255,220,239,0.5),
+                0 0 100px rgba(255,190,225,0.25);
     opacity: 0;
     transition: opacity 1.5s ease;
 }
@@ -117,16 +117,14 @@ body.night-snow {
     transition: opacity 1.5s ease;
 }
 
-.night-clear .stars {
-    opacity: 1;
-}
+.night-clear .stars { opacity: 1; }
 
 .star {
     position: absolute;
     width: 2px;
     height: 2px;
     border-radius: 50%;
-    background: white;
+    background: #fff7fc;
     box-shadow: 0 0 7px rgba(255,255,255,0.9);
     animation: twinkle 3s ease-in-out infinite alternate;
 }
@@ -136,14 +134,14 @@ body.night-snow {
     to { opacity: 1; transform: scale(1.4); }
 }
 
-/* Clouds appear only in cloudy or precipitation scenes */
+/* Clouds */
 
 .cloud {
     position: absolute;
     width: 320px;
     height: 95px;
     border-radius: 100px;
-    background: rgba(255,255,255,0.20);
+    background: rgba(255,225,240,0.30);
     filter: blur(13px);
     opacity: 0;
     transition: opacity 1.5s ease;
@@ -171,22 +169,9 @@ body.night-snow {
     top: -75px;
 }
 
-.cloud-one {
-    top: 17%;
-    left: -50px;
-}
-
-.cloud-two {
-    top: 38%;
-    right: -100px;
-    transform: scale(1.2);
-}
-
-.cloud-three {
-    top: 65%;
-    left: 22%;
-    transform: scale(0.8);
-}
+.cloud-one { top: 17%; left: -50px; }
+.cloud-two { top: 38%; right: -100px; transform: scale(1.2); }
+.cloud-three { top: 65%; left: 22%; transform: scale(0.8); }
 
 .day-cloudy .cloud,
 .night-cloudy .cloud,
@@ -200,10 +185,10 @@ body.night-snow {
 .night-cloudy .cloud,
 .night-rain .cloud,
 .night-snow .cloud {
-    background: rgba(17, 24, 39, 0.5);
+    background: rgba(65,20,48,0.55);
 }
 
-/* Precipitation is populated only when current conditions report it */
+/* Real precipitation only */
 
 #precipitation {
     position: absolute;
@@ -217,35 +202,35 @@ body.night-snow {
     width: 2px;
     height: 22px;
     border-radius: 5px;
-    background: rgba(220, 239, 255, 0.65);
+    background: rgba(255,225,242,0.72);
     transform: rotate(12deg);
     animation: rainfall linear infinite;
 }
 
 @keyframes rainfall {
-    to { transform: translate3d(-35px, 115vh, 0) rotate(12deg); }
+    to { transform: translate3d(-35px,115vh,0) rotate(12deg); }
 }
 
 .snowflake {
     position: absolute;
     top: -20px;
-    color: white;
-    text-shadow: 0 0 8px rgba(255,255,255,0.8);
+    color: #fff7fc;
+    text-shadow: 0 0 8px rgba(255,220,240,0.9);
     animation: snowfall linear infinite;
 }
 
 @keyframes snowfall {
-    to { transform: translate3d(45px, 110vh, 0) rotate(360deg); }
+    to { transform: translate3d(45px,110vh,0) rotate(360deg); }
 }
 
-/* Main layout */
+/* Tall, narrow layout */
 
 .page {
     position: relative;
     z-index: 2;
-    width: min(100% - 32px, 760px);
+    width: min(100% - 32px, 510px);
     margin: 0 auto;
-    padding: 42px 0 55px;
+    padding: 35px 0 55px;
 }
 
 .topbar {
@@ -253,7 +238,7 @@ body.night-snow {
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-    margin-bottom: 28px;
+    margin-bottom: 25px;
 }
 
 .brand {
@@ -261,7 +246,7 @@ body.night-snow {
     letter-spacing: 0.24em;
     font-weight: 700;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.85);
+    color: rgba(255,255,255,0.9);
 }
 
 .city-select {
@@ -284,9 +269,7 @@ body.night-snow {
     background: white;
 }
 
-.select-wrap {
-    position: relative;
-}
+.select-wrap { position: relative; }
 
 .select-wrap::after {
     content: "⌄";
@@ -301,7 +284,7 @@ body.night-snow {
 .weather-card {
     position: relative;
     overflow: hidden;
-    padding: 38px;
+    padding: 36px 30px;
     border-radius: 34px;
     border: 1px solid var(--glass-border);
     background: linear-gradient(
@@ -311,7 +294,7 @@ body.night-snow {
         rgba(255,255,255,0.15)
     );
     box-shadow:
-        0 30px 90px rgba(25, 12, 38, 0.22),
+        0 30px 90px rgba(55,8,35,0.25),
         inset 0 1px 1px rgba(255,255,255,0.55),
         inset 0 -1px 1px rgba(255,255,255,0.12);
     backdrop-filter: blur(28px) saturate(145%);
@@ -340,7 +323,7 @@ body.night-snow {
 
 .location-label {
     margin: 0;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.85);
     font-size: 14px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -348,11 +331,11 @@ body.night-snow {
 
 .temperature {
     margin: 8px 0 0;
-    font-size: clamp(82px, 18vw, 132px);
+    font-size: clamp(82px, 18vw, 122px);
     line-height: 1;
     font-weight: 300;
     letter-spacing: -0.09em;
-    text-shadow: 0 8px 35px rgba(40, 15, 50, 0.12);
+    text-shadow: 0 8px 35px rgba(40,15,50,0.12);
 }
 
 .condition {
@@ -364,102 +347,74 @@ body.night-snow {
 .weather-time {
     margin-top: 9px;
     font-size: 13px;
-    color: rgba(255,255,255,0.72);
+    color: rgba(255,255,255,0.75);
 }
+
+/* All six weather details */
 
 .metrics {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 34px;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 11px;
+    margin-top: 32px;
 }
 
 .metric {
-    min-height: 112px;
-    padding: 18px 15px;
-    border-radius: 22px;
-    border: 1px solid rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.11);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16);
+    min-height: 104px;
+    padding: 17px 15px;
+    border-radius: 21px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.13);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 .metric-label {
-    color: rgba(255,255,255,0.72);
+    color: rgba(255,255,255,0.78);
     font-size: 12px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.035em;
 }
 
 .metric-value {
     margin-top: 12px;
-    font-size: 25px;
+    font-size: 24px;
     font-weight: 600;
 }
 
 .forecast-note {
-    margin-top: 22px;
-    padding: 17px 19px;
+    margin-top: 20px;
+    padding: 18px 19px;
     border-radius: 19px;
-    background: rgba(255,255,255,0.11);
-    border: 1px solid rgba(255,255,255,0.18);
-    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.94);
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
 }
 
 .status {
     margin-top: 18px;
     text-align: center;
-    color: rgba(255,255,255,0.72);
+    color: rgba(255,255,255,0.75);
     font-size: 12px;
 }
 
-.loading {
-    opacity: 0.65;
-}
+.loading { opacity: 0.65; }
 
-.error {
-    padding: 20px;
-    border-radius: 18px;
-    background: rgba(80, 0, 25, 0.25);
-    text-align: center;
-}
-
-@media (max-width: 560px) {
-    .page {
-        padding-top: 25px;
-    }
-
+@media (max-width: 420px) {
+    .page { padding-top: 24px; }
     .weather-card {
-        padding: 27px 22px;
+        padding: 28px 20px;
         border-radius: 27px;
     }
-
-    .metrics {
-        gap: 8px;
-    }
-
+    .metrics { gap: 8px; }
     .metric {
-        padding: 15px 10px;
-        min-height: 100px;
+        padding: 15px 12px;
+        min-height: 96px;
     }
-
-    .metric-value {
-        font-size: 21px;
-    }
-
-    .metric-label {
-        font-size: 11px;
-    }
-
-    .moon {
-        width: 75px;
-        height: 75px;
-    }
-
-    .sun {
-        width: 190px;
-        height: 190px;
-    }
+    .metric-value { font-size: 21px; }
+    .metric-label { font-size: 11px; }
+    .moon { width: 75px; height: 75px; }
+    .sun { width: 190px; height: 190px; }
 }
 </style>
 </head>
@@ -496,7 +451,7 @@ body.night-snow {
     </header>
 
     <section class="weather-card" id="weatherCard">
-        <div class="weather-content" id="weatherContent">
+        <div class="weather-content">
             <p class="location-label" id="location">Canton, Ohio</p>
             <div class="temperature" id="temperature">--°</div>
             <div class="condition" id="condition">Loading weather...</div>
@@ -514,8 +469,23 @@ body.night-snow {
                 </div>
 
                 <div class="metric">
-                    <div class="metric-label">Rain chance</div>
+                    <div class="metric-label">Precipitation</div>
+                    <div class="metric-value" id="precipitationAmount">-- in</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">Chance of rain</div>
                     <div class="metric-value" id="rainChance">--%</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">Chance of snow</div>
+                    <div class="metric-value" id="snowChance">--%</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">Snowfall</div>
+                    <div class="metric-value" id="snowfallAmount">-- in</div>
                 </div>
             </div>
 
@@ -609,13 +579,23 @@ function formatWeatherTime(value) {
     if (!value) return "";
 
     const date = new Date(value);
-
     if (Number.isNaN(date.getTime())) return "";
 
     return "Local time: " + date.toLocaleTimeString([], {
         hour: "numeric",
         minute: "2-digit"
     });
+}
+
+function displayNumber(value, suffix, decimals = 1) {
+    if (value === null || value === undefined || value === "") {
+        return "--" + suffix;
+    }
+
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "--" + suffix;
+
+    return number.toFixed(decimals) + suffix;
 }
 
 async function loadWeather(city) {
@@ -640,8 +620,18 @@ async function loadWeather(city) {
         document.getElementById("condition").textContent = data.condition;
         document.getElementById("humidity").textContent = data.humidity + "%";
         document.getElementById("wind").textContent = Math.round(data.wind_speed) + " mph";
+
+        document.getElementById("precipitationAmount").textContent =
+            displayNumber(data.precipitation, " in");
+
         document.getElementById("rainChance").textContent =
-            Math.round(data.precipitation_chance || 0) + "%";
+            displayNumber(data.precipitation_chance, "%", 0);
+
+        document.getElementById("snowChance").textContent =
+            displayNumber(data.snowfall_chance ?? data.snowfall_probability, "%", 0);
+
+        document.getElementById("snowfallAmount").textContent =
+            displayNumber(data.snowfall_amount, " in");
 
         document.getElementById("weatherTime").textContent =
             formatWeatherTime(data.weather_time);
@@ -653,7 +643,7 @@ async function loadWeather(city) {
         } else if (data.is_snowing) {
             note = "It's currently snowing in " + data.city + ".";
         } else if (data.snow_forecast) {
-            note = "Snow is included in the forecast.";
+            note = "Snow is included in the forecast for " + data.city + ".";
         } else if (data.is_cloudy) {
             note = "Cloud cover is shaping the sky over " + data.city + ".";
         } else {
