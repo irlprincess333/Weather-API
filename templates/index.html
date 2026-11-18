@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ohio Weather</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #831843 0%, #db2777 45%, #fbcfe8 100%);
+      color: #831843;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: rgba(255, 240, 245, 0.97);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(190, 24, 93, 0.35);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      border: 2px solid #f9a8d4;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: #be185d;
+    }
+
+    .subtitle {
+      color: #db2777;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #be185d;
+      margin-bottom: 0.5rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 2px solid #f9a8d4;
+      border-radius: 10px;
+      background: #fff0f6;
+      color: #831843;
+      margin-bottom: 1.25rem;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #ec4899;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #be185d, #ec4899);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.6; cursor: wait; }
+
+    .weather {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #f9a8d4;
+      display: none;
+    }
+
+    .weather.visible { display: block; }
+
+    .city-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #be185d;
+    }
+
+    .temp {
+      font-size: 4rem;
+      font-weight: 300;
+      line-height: 1.1;
+      margin: 0.5rem 0;
+      color: #db2777;
+    }
+
+    .condition {
+      font-size: 1.1rem;
+      color: #ec4899;
+      margin-bottom: 1rem;
+    }
+
+    .details {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.9rem;
+      color: #be185d;
+    }
+
+    .detail span {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #f472b6;
+      margin-bottom: 0.25rem;
+    }
+
+    .error {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #fce7f3;
+      color: #9d174d;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .error.visible { display: block; }
+
+    .status {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #f472b6;
+    }
+
+    .status .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #ec4899;
+      border-radius: 50%;
+      margin-right: 0.35rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="subtitle">Live conditions for cities across Ohio</p>
+
+    <label for="city">Choose a city</label>
+    <select id="city">
+      {% for city in cities %}
+      <option value="{{ city }}"{% if city == "Columbus" %} selected{% endif %}>{{ city }}</option>
+      {% endfor %}
+    </select>
+
+    <button id="fetch-btn" type="button">Get Weather</button>
+
+    <div id="error" class="error"></div>
+
+    <div id="weather" class="weather">
+      <div class="city-name" id="result-city"></div>
+      <div class="temp" id="result-temp"></div>
+      <div class="condition" id="result-condition"></div>
+      <div class="details">
+        <div class="detail"><span>Wind</span><strong id="result-wind"></strong></div>
+        <div class="detail"><span>Humidity</span><strong id="result-humidity"></strong></div>
+      </div>
+    </div>
+
+    <p class="status"><span class="dot"></span>API is online</p>
+  </div>
+
+  <script>
+    const API_BASE = {{ api_base|tojson }};
+    const btn = document.getElementById("fetch-btn");
+    const citySelect = document.getElementById("city");
+    const weatherEl = document.getElementById("weather");
+    const errorEl = document.getElementById("error");
+
+    async function loadWeather() {
+      const city = citySelect.value;
+      btn.disabled = true;
+      btn.textContent = "Loading…";
+      errorEl.classList.remove("visible");
+      weatherEl.classList.remove("visible");
+
+      try {
+      const base = (typeof API_BASE === 'string' && API_BASE.length) ? API_BASE.replace(/\/$/, '') : '';
+      const url = base ? `${base}/weather?city=${encodeURIComponent(city)}` : `/weather?city=${encodeURIComponent(city)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to fetch weather");
+
+        document.getElementById("result-city").textContent = data.city + ", OH";
+        document.getElementById("result-temp").textContent = Math.round(data.temperature) + "°F";
+        document.getElementById("result-condition").textContent = data.condition;
+        document.getElementById("result-wind").textContent = Math.round(data.wind_speed) + " mph";
+        document.getElementById("result-humidity").textContent = data.humidity + "%";
+        weatherEl.classList.add("visible");
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.add("visible");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Get Weather";
+      }
+    }
+
+    btn.addEventListener("click", loadWeather);
+    loadWeather();
+  </script>
+</body>
+</html>
